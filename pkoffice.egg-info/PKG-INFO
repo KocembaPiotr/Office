@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: pkoffice
+Version: 0.0.19
+Summary: Python package to manage office tools.
+Author: Piotr Kocemba
+Author-email: <KocembaPiotr@gmail.com>
+Keywords: python,office,sql,excel,outlook
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Education
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+
+Python package which will simplify usage of main office tools.
+                   

@@ -4,8 +4,11 @@ import numpy as np
 import warnings
 from typing import Literal
 from datetime import datetime
+from pkoffice import file
 
 warnings.filterwarnings('ignore')
+
+TMP_FILE = 'tmp.csv'
 
 
 class SqlDB:
@@ -41,7 +44,8 @@ class SqlDB:
             conn.execute(sql.text(query))
 
     def upload_data(self, df: pd.DataFrame, table_name: str, chunksize: int,
-                    if_exists: Literal["new", "replace", "append"] = 'replace') -> None:
+                    if_exists: Literal["new", "replace", "append"] = 'replace',
+                    log_table: str = None) -> None:
         """
         Method to upload pandas dataframe to database.
         :param df: pandas dataframe with data to upload
@@ -49,20 +53,23 @@ class SqlDB:
         :param chunksize: size of single batch to upload
         :param if_exists: replace - drop/create, append - insert at the end,
                new - delete and insert
+        :param log_table: name of log table to provide there upload parameters
         :return: None
         """
         if if_exists == 'new':
             with self.engine.begin() as conn:
                 conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
-            df.to_sql(table_name, con=self.engine, if_exists='append',
-                      index=False, chunksize=chunksize, method='multi', schema='dbo')
+                df.to_sql(table_name, con=conn, if_exists='append',
+                          index=False, chunksize=chunksize, method='multi', schema='dbo')
         else:
             df.to_sql(table_name, con=self.engine, if_exists=if_exists,
                       index=False, chunksize=chunksize, method='multi', schema='dbo')
-
         self.process_time_end = datetime.now()
         self.df = df
         self.table = table_name
+        if log_table is not None:
+            self.upload_log(log_table, self.upload_parameters())
+            self.df = None
 
     def upload_data_mass(self, df: pd.DataFrame, table_name: str, chunksize: int = 300,
                          flag_delete_data: bool = True, log_table: str = None) -> None:
@@ -112,6 +119,35 @@ class SqlDB:
         except Exception as e:
             print(e)
             self.flag_commit = False
+        self.process_time_end = datetime.now()
+        self.df = df
+        self.table = table_name
+        if log_table is not None:
+            self.upload_log(log_table, self.upload_parameters())
+            self.df = None
+
+    def upload_bulk(self, df: pd.DataFrame, table_name: str, server_folder: str,
+                    flag_delete_data: bool = True, log_table: str = None) -> None:
+        """
+        Method to upload data to database using INSERT BULK.
+        :param df: pandas dataframe with data to upload
+        :param table_name: name of table without []
+        :param server_folder: path to folder which is visible to server to insert
+        :param flag_delete_data: flag to indicate if user would like first delete data from table
+        :param log_table: name of log table to provide there upload parameters
+        :return: None
+        """
+        try:
+            file_tmp = server_folder + TMP_FILE
+            file.file_delete(file_tmp)
+            df.to_csv(file_tmp)
+            with self.engine.begin() as conn:
+                if flag_delete_data:
+                    conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
+                conn.execute(sql.text(f"Bulk Insert dbo.[{table_name}] From '{file_tmp}';"))
+            file.file_delete(file_tmp)
+        except Exception as e:
+            print(e)
         self.process_time_end = datetime.now()
         self.df = df
         self.table = table_name

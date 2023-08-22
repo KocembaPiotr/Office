@@ -56,14 +56,20 @@ class SqlDB:
         :param log_table: name of log table to provide there upload parameters
         :return: None
         """
-        if if_exists == 'new':
-            with self.engine.begin() as conn:
-                conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
-                df.to_sql(table_name, con=conn, if_exists='append',
+        try:
+            if if_exists == 'new':
+                with self.engine.begin() as conn:
+                    conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
+                    df.to_sql(table_name, con=conn, if_exists='append',
+                              index=False, chunksize=chunksize, method='multi',
+                              schema='dbo')
+            else:
+                df.to_sql(table_name, con=self.engine, if_exists=if_exists,
                           index=False, chunksize=chunksize, method='multi', schema='dbo')
-        else:
-            df.to_sql(table_name, con=self.engine, if_exists=if_exists,
-                      index=False, chunksize=chunksize, method='multi', schema='dbo')
+            self.flag_commit = True
+        except Exception as e:
+            self.flag_commit = False
+            print(e)
         self.process_time_end = datetime.now()
         self.df = df
         self.table = table_name
@@ -146,7 +152,9 @@ class SqlDB:
                     conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
                 conn.execute(sql.text(f"Bulk Insert dbo.[{table_name}] From '{file_tmp}';"))
             file.file_delete(file_tmp)
+            self.flag_commit = True
         except Exception as e:
+            self.flag_commit = False
             print(e)
         self.process_time_end = datetime.now()
         self.df = df

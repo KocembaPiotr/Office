@@ -95,7 +95,7 @@ class SqlDB:
             conn.execute(sql.text(sql_query_batch))
 
         def replace_string(x):
-            return re.sub("'", "", str(x))
+            return re.sub(':', ': ', re.sub("'", "", str(x)))
 
         for i in df:
             if df[i].dtype == 'datetime64[ns]':

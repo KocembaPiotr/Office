@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pkoffice
-Version: 0.0.20
+Version: 0.0.22
 Summary: Python package to manage office tools.
 Author: Piotr Kocemba
 Author-email: <KocembaPiotr@gmail.com>

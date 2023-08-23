@@ -1,12 +1,10 @@
+import re
 import sqlalchemy as sql
 import pandas as pd
 import numpy as np
-import warnings
 from typing import Literal
 from datetime import datetime
 from pkoffice import file
-
-warnings.filterwarnings('ignore')
 
 TMP_FILE = 'tmp.csv'
 
@@ -96,6 +94,9 @@ class SqlDB:
                 sql_query_batch = f'{sql_query_batch} {sql_query}'
             conn.execute(sql.text(sql_query_batch))
 
+        def replace_string(x):
+            return re.sub("'", "", str(x))
+
         for i in df:
             if df[i].dtype == 'datetime64[ns]':
                 df[i] = df[i].dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -108,7 +109,7 @@ class SqlDB:
                 df[i] = df[i].apply(lambda x: f"{x}")
                 df[i] = df[i].astype('string')
             else:
-                df[i] = df[i].apply(lambda x: f"'{x}'")
+                df[i] = df[i].apply(lambda x: f"'{replace_string(x)}'")
                 df[i] = df[i].astype('string')
         try:
             with self.engine.begin() as conn:

@@ -17,6 +17,7 @@ class SqlDB:
         self.engine = sql.create_engine(f"mssql+pyodbc://{server}/"
                                         f"{database}?driver={driver}",
                                         fast_executemany=True)
+        self.database = database
         self.process_time_beg = datetime.now()
         self.process_time_end = datetime.now()
         self.df = None
@@ -147,11 +148,14 @@ class SqlDB:
         try:
             file_tmp = server_folder + TMP_FILE
             file.file_delete(file_tmp)
-            df.to_csv(file_tmp)
+            df.to_csv(file_tmp, index=False, header=False)
             with self.engine.begin() as conn:
                 if flag_delete_data:
                     conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
-                conn.execute(sql.text(f"Bulk Insert dbo.[{table_name}] From '{file_tmp}';"))
+                conn.execute(sql.text(f"""
+                                        Bulk Insert {self.database}.dbo.[{table_name}] From '{file_tmp}' 
+                                        WITH (FIELDTERMINATOR = ',',ROWTERMINATOR = '\n')
+                                     """))
             file.file_delete(file_tmp)
             self.flag_commit = True
         except Exception as e:

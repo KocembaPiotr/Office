@@ -67,6 +67,12 @@ def files_download_wait(directory: str, file_name: str, timeout_seconds: int,
 
 
 def files_list(folder: str, file_filter: str = None) -> list:
+    """
+    Method to list files from indicated folder using filter
+    :param folder: indicated folder to search
+    :param file_filter: filter which files to choose
+    :return: None
+    """
     if file_filter is None:
         return glob.glob(folder)
     else:

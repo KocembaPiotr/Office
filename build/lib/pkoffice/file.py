@@ -2,6 +2,7 @@ import os
 import re
 import time
 import shutil
+import glob
 
 
 def files_copy_directory(path_source, path_destination, filter_re=None) -> int:
@@ -63,6 +64,13 @@ def files_download_wait(directory: str, file_name: str, timeout_seconds: int,
                 dl_wait = True
         seconds += 1
     return seconds
+
+
+def files_list(folder: str, file_filter: str = None) -> list:
+    if filter is None:
+        return glob.glob(folder)
+    else:
+        return glob.glob(folder + file_filter)
 
 
 def file_copy(path_source, path_destination) -> int:

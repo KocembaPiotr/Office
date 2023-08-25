@@ -67,7 +67,7 @@ def files_download_wait(directory: str, file_name: str, timeout_seconds: int,
 
 
 def files_list(folder: str, file_filter: str = None) -> list:
-    if filter is None:
+    if file_filter is None:
         return glob.glob(folder)
     else:
         return glob.glob(folder + file_filter)

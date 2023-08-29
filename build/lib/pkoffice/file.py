@@ -104,6 +104,18 @@ def file_delete(path: str) -> None:
         os.remove(path)
 
 
+def file_exists(path: str) -> bool:
+    """
+    Function to check if file exists in indicated location.
+    :param path: path to proper file
+    :return: True - if exists, False if it does not exist
+    """
+    if os.path.isfile(path):
+        return True
+    else:
+        return False
+
+
 def folder_delete(dir_path: str) -> None:
     """
     Function to delete whole folder with all items inside.

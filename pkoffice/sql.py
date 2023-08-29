@@ -148,6 +148,8 @@ class SqlDB:
         try:
             file_tmp = server_folder + TMP_FILE
             file.file_delete(file_tmp)
+            df = df.replace(',', '', regex=True).replace('&', '', regex=True).\
+                replace('"', '', regex=True).replace("'", "", regex=True)
             df.to_csv(file_tmp, index=False, header=False)
             with self.engine.begin() as conn:
                 if flag_delete_data:

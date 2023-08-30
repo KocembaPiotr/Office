@@ -184,15 +184,15 @@ class SqlDB:
                 df_check = 'RollBack'
             elif df_max != df_db_max:
                 df_check = 'Fault'
-            return [self.process_time_beg.strftime("%Y-%m-%d"),
-                    self.process_time_beg.strftime("%H:%M:%S"),
+            return [self.process_time_end.strftime("%Y-%m-%d"),
+                    self.process_time_end.strftime("%H:%M:%S"),
                     self.table,
                     (self.process_time_end - self.process_time_beg).seconds,
                     (self.process_time_end - self.process_time_beg).seconds,
                     df_max, df_check]
         else:
-            return [self.process_time_beg.strftime("%Y-%m-%d"),
-                    self.process_time_beg.strftime("%H:%M:%S"),
+            return [self.process_time_end.strftime("%Y-%m-%d"),
+                    self.process_time_end.strftime("%H:%M:%S"),
                     (self.process_time_end - self.process_time_beg).seconds]
 
     def upload_log(self, table_name: str, log_value: list) -> None:

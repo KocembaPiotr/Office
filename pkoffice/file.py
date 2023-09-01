@@ -79,18 +79,23 @@ def files_list(folder: str, file_filter: str = None) -> list:
         return glob.glob(folder + file_filter)
 
 
-def file_copy(path_source, path_destination) -> int:
+def file_copy(path_source, path_destination, folder_creation=False) -> int:
     """
     Function to copy single file from one directory to another.
+    :param folder_creation: flag to check if folder exists and if not create folder for destination purpose
     :param path_source: path to folder from files will be copied
     :param path_destination: path to folder where files will be copied
     :return: 1 - as success, 0 - as failure
     """
     try:
+        if folder_creation:
+            dir_name, _ = os.path.split(path_destination)
+            os.makedirs(dir_name, exist_ok=True)
         file_delete(path_destination)
         shutil.copy2(path_source, path_destination)
         return 1
-    except OSError:
+    except OSError as e:
+        print(e)
         return 0
 
 

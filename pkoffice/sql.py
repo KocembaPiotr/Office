@@ -230,4 +230,7 @@ def parse_date_from_number(df: pd.DataFrame) -> pd.DataFrame:
     :param df: dataframe with only date columns
     :return: dataframe with converted columns
     """
-    return df.apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(x) - 2))
+    for col in df.columns:
+        df[col] = df[col].apply(
+            lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(x) - 2))
+    return df

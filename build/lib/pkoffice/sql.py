@@ -156,7 +156,7 @@ class SqlDB:
                     conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
                 conn.execute(sql.text(f"""
                                         Bulk Insert {self.database}.dbo.[{table_name}] From '{file_tmp}' 
-                                        WITH (FIELDTERMINATOR = ',',ROWTERMINATOR = '\n')
+                                        WITH (FIELDTERMINATOR = ',')
                                      """))
             file.file_delete(file_tmp)
             self.flag_commit = True
@@ -222,3 +222,12 @@ def columns_str_max_len(df: pd.DataFrame) -> None:
     df_col_max_len = [{i: int(np.ceil(1.5 * df[i].str.len().max()))} for i in col_string]
     for column in df_col_max_len:
         print(column)
+
+
+def parse_date_from_number(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Function to parse date from ordinal numbers.
+    :param df: dataframe with only date columns
+    :return: dataframe with converted columns
+    """
+    return df.apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(x) - 2))

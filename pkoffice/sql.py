@@ -224,13 +224,10 @@ def columns_str_max_len(df: pd.DataFrame) -> None:
         print(column)
 
 
-def parse_date_from_number(df: pd.DataFrame) -> pd.DataFrame:
+def parse_date_from_number(df: pd.Series) -> pd.Series:
     """
-    Function to parse date from ordinal numbers.
-    :param df: dataframe with only date columns
-    :return: dataframe with converted columns
+    Function to parse date from ordinal numbers for single series.
+    :param df: series with only date columns
+    :return: series with converted column
     """
-    for col in df.columns:
-        df[col] = df[col].apply(
-            lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(x) - 2))
-    return df
+    return df.apply(lambda x: datetime.fromordinal(datetime(1900, 1, 1).toordinal() + int(x) - 2))

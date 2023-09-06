@@ -39,3 +39,13 @@ def filters_remove_filter(wb, sh) -> None:
         wb.api.Names.Item("_FilterDatabase").Delete()
     except com_error:
         print(sys.exc_info())
+
+
+def refresh_table_pivot(sh, table_pivot_name: str) -> None:
+    """
+    Function to refresh pivot table in Excel.
+    :param table_pivot_name: name of pivot table which will be refreshed
+    :param sh: sheet variable
+    :return: None
+    """
+    sh.api.PivotTables(table_pivot_name).RefreshTable()

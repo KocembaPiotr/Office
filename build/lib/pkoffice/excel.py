@@ -48,4 +48,20 @@ def refresh_table_pivot(sh, table_pivot_name: str) -> None:
     :param sh: sheet variable
     :return: None
     """
-    sh.api.PivotTables(table_pivot_name).RefreshTable()
+    try:
+        sh.api.PivotTables(table_pivot_name).RefreshTable()
+    except Exception as e:
+        print(e)
+
+
+def refresh_table(sh, table_name: str) -> None:
+    """
+    Function to refresh table in Excel.
+    :param table_name: name of pivot table which will be refreshed
+    :param sh: sheet variable
+    :return: None
+    """
+    try:
+        sh.api.ListObjects(table_name).Refresh
+    except Exception as e:
+        print(e)

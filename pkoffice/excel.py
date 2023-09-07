@@ -62,6 +62,6 @@ def refresh_table(sh, table_name: str) -> None:
     :return: None
     """
     try:
-        sh.api.ListObjects(table_name).Refresh
+        sh.api.ListObjects(table_name).Refresh()
     except Exception as e:
         print(e)

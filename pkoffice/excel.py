@@ -1,6 +1,22 @@
 import os
 import sys
+import time
+import webbrowser
+import xlwings as xw
 from win32com.universal import com_error
+
+
+def open_excel_sharepoint(file_path: str, file_name: str, time_limit: int = 20) -> xw.Book:
+    """
+    Function to open Excel on SharePoint and obtain its instance. file_path should have prefix: ms-excel:ofe|u|
+    :param file_path: SharePoint path to Excel file with prefix: ms-excel:ofe|u|
+    :param file_name: Excel file name
+    :param time_limit: time limit to wait to open Excel on desktop app
+    :return: xlwings book to further process
+    """
+    webbrowser.open(file_path)
+    time.sleep(time_limit)
+    return xw.Book(file_name)
 
 
 def close_excel_instances() -> int:

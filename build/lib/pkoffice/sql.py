@@ -2,6 +2,7 @@ import re
 import sqlalchemy as sql
 import pandas as pd
 import numpy as np
+import threading
 from typing import Literal
 from datetime import datetime
 from pkoffice import file
@@ -23,6 +24,7 @@ class SqlDB:
         self.df = None
         self.table = None
         self.flag_commit = None
+        self.threads = []
 
     def download_data(self, query: str) -> pd.DataFrame:
         """
@@ -135,7 +137,8 @@ class SqlDB:
             self.df = None
 
     def upload_bulk(self, df: pd.DataFrame, table_name: str, server_folder: str,
-                    flag_delete_data: bool = True, log_table: str = None) -> None:
+                    flag_delete_data: bool = True, log_table: str = None,
+                    file_name: str = TMP_FILE) -> None:
         """
         Method to upload data to database using INSERT BULK.
         :param df: pandas dataframe with data to upload
@@ -143,10 +146,11 @@ class SqlDB:
         :param server_folder: path to folder which is visible to server to insert
         :param flag_delete_data: flag to indicate if user would like first delete data from table
         :param log_table: name of log table to provide there upload parameters
+        :param file_name: name of csv file which will be uploaded
         :return: None
         """
         try:
-            file_tmp = server_folder + TMP_FILE
+            file_tmp = server_folder + file_name
             file.file_delete(file_tmp)
             df = df.replace(',', '', regex=True).replace('&', '', regex=True).\
                 replace('"', '', regex=True).replace("'", "", regex=True)
@@ -169,6 +173,23 @@ class SqlDB:
         if log_table is not None:
             self.upload_log(log_table, self.upload_parameters())
             self.df = None
+
+    def upload_bulk_thread(self, df: pd.DataFrame, table_name: str, server_folder: str,
+                           flag_delete_data: bool = True, log_table: str = None,
+                           file_name: str = TMP_FILE) -> None:
+        t = threading.Thread(target=self.upload_bulk, args=[df, table_name, server_folder,
+                                                            flag_delete_data, log_table,
+                                                            file_name])
+        self.threads.append(t)
+        t.start()
+
+    def upload_bulk_thread_wait(self) -> None:
+        """
+        Function to wait for all threads to finish
+        :return: None
+        """
+        for x in self.threads:
+            x.join()
 
     def upload_parameters(self) -> None:
         """

@@ -125,7 +125,7 @@ def file_base_name(path: str, separator: str = '\\') -> str:
     :param separator: separator used in split
     :return: file name
     """
-    head, *_, tail = path[0].split(separator)
+    head, *_, tail = path.split(separator)
     return tail
 
 

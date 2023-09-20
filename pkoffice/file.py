@@ -7,7 +7,7 @@ import glob
 
 def files_copy_directory(path_source, path_destination, filter_re=None) -> int:
     """
-    Function to copy all files from one directory to another.
+    Function to copy all files from one directory to another
     :param path_source: path to folder from files will be copied
     :param path_destination: path to folder where files will be copied
     :param filter_re: optional filter to indicate what files should be copied
@@ -25,7 +25,7 @@ def files_copy_directory(path_source, path_destination, filter_re=None) -> int:
 
 def files_delete_directory(directory_path: str) -> int:
     """
-    Function to delete all files in indicated directory.
+    Function to delete all files in indicated directory
     :param directory_path: path to indicated folder
     :return: 1 - as success, 0 - as failure
     """
@@ -42,7 +42,7 @@ def files_delete_directory(directory_path: str) -> int:
 def files_download_wait(directory: str, file_name: str, timeout_seconds: int,
                         nfiles: int = None) -> None:
     """
-    Function to wait for files which are downloading.
+    Function to wait for files which are downloading
     :param directory: path to folder where file will be downloaded
     :param file_name: name of the downloading file
     :param timeout_seconds: time computer will be wait if something go wrong
@@ -78,7 +78,7 @@ def files_list(folder: str, file_filter: str = '*') -> list:
 
 def file_copy(path_source, path_destination, folder_creation=False) -> int:
     """
-    Function to copy single file from one directory to another.
+    Function to copy single file from one directory to another
     :param folder_creation: flag to check if folder exists and if not create folder for destination purpose
     :param path_source: path to folder from files will be copied
     :param path_destination: path to folder where files will be copied
@@ -98,7 +98,7 @@ def file_copy(path_source, path_destination, folder_creation=False) -> int:
 
 def file_delete(path: str) -> None:
     """
-    Function to delete proper file if it exists.
+    Function to delete proper file if it exists
     :param path: path to proper file
     :return: None
     """
@@ -108,7 +108,7 @@ def file_delete(path: str) -> None:
 
 def file_exists(path: str) -> bool:
     """
-    Function to check if file exists in indicated location.
+    Function to check if file exists in indicated location
     :param path: path to proper file
     :return: True - if exists, False if it does not exist
     """
@@ -118,9 +118,20 @@ def file_exists(path: str) -> bool:
         return False
 
 
+def file_base_name(path: str, separator: str = '\\') -> str:
+    """
+    Function to return base file name from path
+    :param path: full path with file name
+    :param separator: separator used in split
+    :return: file name
+    """
+    head, *_, tail = path[0].split(separator)
+    return tail
+
+
 def folder_delete(dir_path: str) -> None:
     """
-    Function to delete whole folder with all items inside.
+    Function to delete whole folder with all items inside
     :param dir_path: path to folder
     :return: None
     """
@@ -130,7 +141,7 @@ def folder_delete(dir_path: str) -> None:
 
 def folder_copy(dir_source_path: str, dir_destination_path: str) -> None:
     """
-    FUnction to copy whole folder from one directory to another.
+    FUnction to copy whole folder from one directory to another
     :param dir_source_path: folder source path
     :param dir_destination_path: folder destination path
     :return: None

@@ -129,6 +129,27 @@ def file_base_name(path: str, separator: str = '\\') -> str:
     return tail
 
 
+def file_content_read(path: str) -> list:
+    """
+    Function to read data from file
+    :param path: path to file
+    :return: content of the file
+    """
+    with open(path, 'r') as f:
+        return f.readlines()
+
+
+def file_content_write(path: str, content_new: list) -> None:
+    """
+    Function to write data to file
+    :param path: path to file
+    :param content_new: new content to write
+    :return: None
+    """
+    with open(path, 'w') as f:
+        f.writelines(content_new)
+
+
 def folder_delete(dir_path: str) -> None:
     """
     Function to delete whole folder with all items inside

@@ -19,11 +19,13 @@ def open_excel_sharepoint(file_path: str, file_name: str, time_limit: int = 20) 
     return xw.Book(file_name)
 
 
-def close_excel_instances() -> int:
+def close_excel_instances(time_wait: int = 0) -> int:
     """
     Function will close all opened MS Excel instances.
+    :param time_wait: wait before remove all Excel instances
     :return: None
     """
+    time.sleep(time_wait)
     os.system(f'taskkill /F /IM Excel.exe')
 
 

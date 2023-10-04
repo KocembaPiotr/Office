@@ -133,7 +133,7 @@ class SqlDB:
         self.df = df
         self.table = table_name
         if log_table is not None:
-            self.upload_log(log_table, self.upload_parameters())
+            self.upload_log(log_table, self.upload_parameters(flag_delete_data))
             self.df = None
 
     def upload_bulk(self, df: pd.DataFrame, table_name: str, server_folder: str,
@@ -154,7 +154,7 @@ class SqlDB:
             file.file_delete(file_tmp)
             df = df.replace(',', '', regex=True).replace('&', '', regex=True).\
                 replace('"', '', regex=True).replace("'", "", regex=True)
-            df.to_csv(file_tmp, index=False, header=False)
+            df.to_csv(file_tmp, index=False, header=False, encoding='utf-8-sig')
             with self.engine.begin() as conn:
                 if flag_delete_data:
                     conn.execute(sql.text(f'Delete from dbo.[{table_name}]'))
@@ -171,7 +171,7 @@ class SqlDB:
         self.df = df
         self.table = table_name
         if log_table is not None:
-            self.upload_log(log_table, self.upload_parameters())
+            self.upload_log(log_table, self.upload_parameters(flag_delete_data))
             self.df = None
 
     def upload_bulk_thread(self, df: pd.DataFrame, table_name: str, server_folder: str,
@@ -191,7 +191,7 @@ class SqlDB:
         for x in self.threads:
             x.join()
 
-    def upload_parameters(self) -> None:
+    def upload_parameters(self, flag_delete_data: bool = True) -> None:
         """
         Method to return main process parameters.
         :return: [process date, process time, process duration,
@@ -203,7 +203,7 @@ class SqlDB:
             df_check = 'Commit'
             if not self.flag_commit:
                 df_check = 'RollBack'
-            elif df_max != df_db_max:
+            elif df_max != df_db_max and flag_delete_data:
                 df_check = 'Fault'
             return [self.process_time_end.strftime("%Y-%m-%d"),
                     self.process_time_end.strftime("%H:%M:%S"),

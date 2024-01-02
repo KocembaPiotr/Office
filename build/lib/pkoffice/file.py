@@ -1,3 +1,4 @@
+import datetime
 import os
 import re
 import time
@@ -118,6 +119,14 @@ def file_exists(path: str) -> bool:
         return False
 
 
+def file_date_creation(file_path: str) -> datetime.datetime:
+    return datetime.datetime.fromtimestamp(os.path.getctime(file_path))
+
+
+def file_date_modification(file_path: str) -> datetime.datetime:
+    return datetime.datetime.fromtimestamp(os.path.getmtime(file_path))
+
+
 def file_base_name(path: str, separator: str = '\\') -> str:
     """
     Function to return base file name from path
@@ -168,3 +177,8 @@ def folder_copy(dir_source_path: str, dir_destination_path: str) -> None:
     :return: None
     """
     shutil.copytree(dir_source_path, dir_destination_path, dirs_exist_ok=True)
+
+
+def folder_create(folder_path: str) -> None:
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)

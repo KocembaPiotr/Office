@@ -83,3 +83,18 @@ def refresh_table(sh, table_name: str) -> None:
         sh.api.ListObjects(table_name).Refresh()
     except Exception as e:
         print(e)
+
+
+def file_columns_autofit(report_path: str, sheet: str) -> None:
+    """
+    Function to fit columns in Excel file automatically
+    :param report_path: path to Excel file
+    :param sheet: Sheet name of Excel file
+    :return: None
+    """
+    wb = xw.Book(report_path)
+    sh = wb.sheets(sheet)
+    sh.autofit("columns")
+    wb.save()
+    wb.app.quit()
+    close_excel_instances(3)

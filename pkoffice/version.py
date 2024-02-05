@@ -1,5 +1,5 @@
 import re
-import file
+from pkoffice import file
 
 
 def version_read(file_path: str, version_pattern: str) -> str:
@@ -26,7 +26,10 @@ def version_update(file_local_path: str, file_server_path: str,
     :param version_pattern: pattern to extract proper version number
     :return: None
     """
-    local_functions_version = version_read(file_local_path, version_pattern)
-    server_functions_version = version_read(file_server_path, version_pattern)
-    if local_functions_version != server_functions_version:
+    if file.file_exists(file_local_path):
+        local_functions_version = version_read(file_local_path, version_pattern)
+        server_functions_version = version_read(file_server_path, version_pattern)
+        if local_functions_version != server_functions_version:
+            file.file_copy(file_server_path, file_local_path)
+    else:
         file.file_copy(file_server_path, file_local_path)

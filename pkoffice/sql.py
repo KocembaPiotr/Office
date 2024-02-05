@@ -295,6 +295,7 @@ def parse_to_int_with_str_nan(df: pd.DataFrame, column_names: list) -> pd.DataFr
     :param column_names: list of columns which need to be converted
     :return: pandas dataframe with corrected types
     """
+    df[column_names] = df[column_names].str.replace(' ', '', regex=True)
     for column_name in column_names:
         df[column_name] = df[column_name].fillna(-9999)
         df[column_name] = df[column_name].astype(int)

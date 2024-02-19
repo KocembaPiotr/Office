@@ -287,7 +287,7 @@ def parse_to_float(df: pd.DataFrame, column_names: list) -> pd.DataFrame:
     :param column_names: list of columns which need to be converted
     :return: pandas dataframe with corrected types
     """
-    df[column_names] = df[column_names].replace(' ', '', regex=True).astype('float')
+    df[column_names] = df[column_names].replace(' ', '', regex=True).replace(',', '.', regex=True).astype('float')
     return df
 
 

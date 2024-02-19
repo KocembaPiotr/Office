@@ -15,10 +15,14 @@ class SqlDB:
     """
     Class to manage sql database connection.
     """
-    def __init__(self, server: str, database: str, driver: str):
-        self.engine = sql.create_engine(f"mssql+pyodbc://{server}/"
-                                        f"{database}?driver={driver}",
-                                        fast_executemany=True)
+    def __init__(self, server: str, database: str, driver: str,
+                 user: str = None, user_pass: str = None):
+        if user is None:
+            self.engine = sql.create_engine(f"mssql+pyodbc://{server}/{database}?driver={driver}",
+                                            fast_executemany=True)
+        else:
+            self.engine = sql.create_engine(f"mssql+pyodbc://{user}:{user_pass}@{server}/{database}?driver={driver}",
+                                            fast_executemany=True)
         self.database = database
         self.process_time_beg = datetime.now()
         self.process_time_end = datetime.now()
@@ -283,8 +287,7 @@ def parse_to_float(df: pd.DataFrame, column_names: list) -> pd.DataFrame:
     :param column_names: list of columns which need to be converted
     :return: pandas dataframe with corrected types
     """
-    for column_name in column_names:
-        df[column_name] = df[column_name].apply(lambda x: float(re.sub(',', '.', re.sub(' ', '', str(x)))))
+    df[column_names] = df[column_names].replace(' ', '', regex=True).astype('float')
     return df
 
 

@@ -1,12 +1,12 @@
 README.md
 setup.py
 pkoffice/__init__.py
+pkoffice/api.py
 pkoffice/excel.py
 pkoffice/file.py
 pkoffice/outlook.py
 pkoffice/selenium.py
 pkoffice/sql.py
-pkoffice/version.py
 pkoffice.egg-info/PKG-INFO
 pkoffice.egg-info/SOURCES.txt
 pkoffice.egg-info/dependency_links.txt

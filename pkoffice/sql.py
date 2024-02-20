@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import sqlite3 as sqlite
 import threading
+import duckdb
 from typing import Literal
 from datetime import datetime
 from pkoffice import file
@@ -237,6 +238,82 @@ class SqlDB:
                 Values ({sql_values})""")
 
 
+class Sqlite:
+    """
+    Class to manage sqlite database connection.
+    """
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+
+    def create_table(self, table_name: str, table_schema: str) -> None:
+        """
+        Method to create single table
+        :param table_name: name of the table
+        :param table_schema: indication of table fields and types
+        :return: None
+        """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                conn.execute(f"""
+                    CREATE TABLE IF NOT EXISTS {table_name} ({table_schema})
+                """)
+                conn.commit()
+        except Exception as e:
+            print(e)
+
+    def execute_query(self, query: str) -> None:
+        """
+        Method to execute query
+        :param query: SQL query in string format
+        :return: None
+        """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                conn.execute(query)
+                conn.commit()
+        except Exception as e:
+            print(e)
+
+    def download_data(self, query: str, column_names: str) -> None:
+        """
+            Method to get option and values from indicated table and database
+            :param query: SQL query in string format
+            :param column_names: name of columns in query
+            :return: dataframe with list of option and values
+            """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                cursor = conn.execute(query)
+                cursor_data = pd.DataFrame(cursor, columns=[column_names])
+                return cursor_data
+        except Exception as e:
+            print(e)
+
+
+class DuckDb:
+    """
+        Class to manage duckDB olap database connection.
+    """
+    def __init__(self, db_path: str = ''):
+        self.db_path = db_path
+
+    def download_excel_data(self, excel_path: str, excel_sheet: str, select_query: str = '*') -> pd.DataFrame:
+        """
+        Method to download Excel data using DuckDb
+        :param excel_path: path to Excel file
+        :param excel_sheet: sheet name of Excel file
+        :param select_query: columns to extract
+        :return: pandas dataframe
+        """
+        with duckdb.connect(self.db_path) as conn:
+            conn.install_extension('spatial')
+            conn.load_extension('spatial')
+            return conn.sql(f"""
+                Select {select_query}
+                From st_read('{excel_path}', layer = '{excel_sheet}')
+            """).df()
+
+
 def columns_str_max_len(df: pd.DataFrame) -> None:
     """
     Function to return max length of string columns multiply by 1.5.
@@ -305,61 +382,3 @@ def parse_to_int_with_str_nan(df: pd.DataFrame, column_names: list) -> pd.DataFr
         df[column_name] = df[column_name].astype(str)
         df[column_name] = df[column_name].replace('-9999', np.nan)
     return df
-
-
-class Sqlite:
-    """
-    Class to manage sqlite database connection.
-    """
-    def __init__(self, db_path: str):
-        self.db_path = db_path
-
-    def create_table(self, table_name: str, table_schema: str) -> None:
-        """
-        Method to create single table
-        :param table_name: name of the table
-        :param table_schema: indication of table fields and types
-        :return: None
-        """
-        try:
-            with sqlite.connect(self.db_path) as conn:
-                conn.execute(f"""
-                    CREATE TABLE IF NOT EXISTS {table_name} ({table_schema})
-                """)
-                conn.commit()
-        except Exception as e:
-            print(e)
-
-    def execute_query(self, query: str) -> None:
-        """
-        Method to execute query
-        :param query: SQL query in string format
-        :return: None
-        """
-        try:
-            with sqlite.connect(self.db_path) as conn:
-                conn.execute(query)
-                conn.commit()
-        except Exception as e:
-            print(e)
-
-    def download_data(self, query: str, column_names: str) -> None:
-        """
-            Method to get option and values from indicated table and database
-            :param query: SQL query in string format
-            :param column_names: name of columns in query
-            :return: dataframe with list of option and values
-            """
-        try:
-            with sqlite.connect(self.db_path) as conn:
-                cursor = conn.execute(query)
-                cursor_data = pd.DataFrame(cursor, columns=[column_names])
-                return cursor_data
-        except Exception as e:
-            print(e)
-
-
-class DuckDb:
-    """
-        Class to manage duckDB olap database connection.
-    """

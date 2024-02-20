@@ -307,111 +307,59 @@ def parse_to_int_with_str_nan(df: pd.DataFrame, column_names: list) -> pd.DataFr
     return df
 
 
-def sqlite_settings_create(settings_path: str, setting_name: str) -> None:
+class Sqlite:
     """
-    Function to create SQLite database with option table
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :return: none
+    Class to manage sqlite database connection.
     """
-    try:
-        with sqlite.connect(settings_path) as conn:
-            conn.execute(f"""
-                CREATE TABLE {setting_name} (OPTION_NAME TEXT, OPTION_VALUE TEXT)
-            """)
-    except Exception as e:
-        print(e)
+    def __init__(self, db_path: str):
+        self.db_path = db_path
+
+    def create_table(self, table_name: str, table_schema: str) -> None:
+        """
+        Method to create single table
+        :param table_name: name of the table
+        :param table_schema: indication of table fields and types
+        :return: None
+        """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                conn.execute(f"""
+                    CREATE TABLE IF NOT EXISTS {table_name} ({table_schema})
+                """)
+                conn.commit()
+        except Exception as e:
+            print(e)
+
+    def execute_query(self, query: str) -> None:
+        """
+        Method to execute query
+        :param query: SQL query in string format
+        :return: None
+        """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                conn.execute(query)
+                conn.commit()
+        except Exception as e:
+            print(e)
+
+    def download_data(self, query: str, column_names: str) -> None:
+        """
+            Method to get option and values from indicated table and database
+            :param query: SQL query in string format
+            :param column_names: name of columns in query
+            :return: dataframe with list of option and values
+            """
+        try:
+            with sqlite.connect(self.db_path) as conn:
+                cursor = conn.execute(query)
+                cursor_data = pd.DataFrame(cursor, columns=[column_names])
+                return cursor_data
+        except Exception as e:
+            print(e)
 
 
-def sqlite_settings_drop(settings_path: str, setting_name: str) -> None:
+class DuckDb:
     """
-    Function to drop indicated table in SQLite database
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :return: none
+        Class to manage duckDB olap database connection.
     """
-    try:
-        with sqlite.connect(settings_path) as conn:
-            conn.execute(f"""
-                DROP TABLE {setting_name} 
-            """)
-    except Exception as e:
-        print(e)
-
-
-def sqlite_settings_insert(settings_path: str, setting_name: str, option_name: str,
-                           option_value: int) -> None:
-    """
-    Function to introduce default options to indicated table and database
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :param option_name: name of option which needs to be added
-    :param option_value: name of option value which needs to be added
-    :return: none
-    """
-    with sqlite.connect(settings_path) as conn:
-        cursor = conn.execute(f"""
-                SELECT * FROM {setting_name} WHERE OPTION_NAME = '{option_name}'
-            """)
-        if len(cursor.fetchall()) == 0:
-            conn.execute(f"""
-                INSERT INTO {setting_name} (OPTION_NAME, OPTION_VALUE)
-                    VALUES('{option_name}', '{option_value}')
-            """)
-            conn.commit()
-
-
-def sqlite_settings_delete(settings_path: str, setting_name: str, option_name: str) -> None:
-    """
-    Function to delete options from indicated table and database
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :param option_name: name of option which needs to be deleted
-    :return: none
-    """
-    try:
-        with sqlite.connect(settings_path) as conn:
-            conn.execute(f"""
-                DELETE FROM {setting_name}
-                    WHERE OPTION_NAME = '{option_name}'
-            """)
-            conn.commit()
-    except Exception as e:
-        print(e)
-
-
-def sqlite_settings_update(settings_path: str, setting_name: str, option_name: str,
-                           option_value: int) -> None:
-    """
-    Function to update options to indicated table and database
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :param option_name: name of option which needs to be updated
-    :param option_value: name of option value which needs to be updated
-    :return: none
-    """
-    with sqlite.connect(settings_path) as conn:
-        conn.execute(f"""
-            UPDATE {setting_name} 
-                SET OPTION_VALUE = '{option_value}'
-                WHERE OPTION_NAME = '{option_name}'
-        """)
-        conn.commit()
-
-
-def sqlite_settings_data(settings_path: str, setting_name: str) -> pd.DataFrame:
-    """
-    Function to get option and values from indicated table and database
-    :param settings_path: path to database
-    :param setting_name: name of settings table for indicated mechanism
-    :return: dataframe with list of option and values
-    """
-    try:
-        with sqlite.connect(settings_path) as conn:
-            cursor = conn.execute(f"""
-                SELECT * FROM {setting_name}
-            """)
-            cursor_data = pd.DataFrame(cursor, columns=['OPTION_NAME', 'OPTION_VALUE'])
-            return cursor_data
-    except Exception as e:
-        print(e)

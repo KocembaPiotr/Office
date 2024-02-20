@@ -4,3 +4,5 @@ setuptools~=68.0.0
 xlwings~=0.23.3
 numpy~=1.25.1
 selenium~=4.11.2
+azure_identity~=1.15.0
+requests~=2.31.0

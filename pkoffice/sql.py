@@ -274,7 +274,7 @@ class Sqlite:
         except Exception as e:
             print(e)
 
-    def download_data(self, query: str, column_names: str) -> None:
+    def download_data(self, query: str, column_names: list) -> pd.DataFrame:
         """
             Method to get option and values from indicated table and database
             :param query: SQL query in string format
@@ -284,10 +284,10 @@ class Sqlite:
         try:
             with sqlite.connect(self.db_path) as conn:
                 cursor = conn.execute(query)
-                cursor_data = pd.DataFrame(cursor, columns=[column_names])
-                return cursor_data
+                return pd.DataFrame(cursor, columns=column_names)
         except Exception as e:
             print(e)
+            return pd.DataFrame
 
 
 class DuckDb:

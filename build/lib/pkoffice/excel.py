@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import webbrowser
+import pandas as pd
 import xlwings as xw
 from win32com.universal import com_error
 
@@ -27,6 +28,21 @@ def close_excel_instances(time_wait: int = 0) -> int:
     """
     time.sleep(time_wait)
     os.system(f'taskkill /F /IM Excel.exe')
+
+
+def close_columns_autofit(report_path: str, sheet: str) -> None:
+    """
+    Function to fit columns in Excel file automatically
+    :param report_path: path to Excel file
+    :param sheet: Sheet name of Excel file
+    :return: None
+    """
+    wb = xw.Book(report_path)
+    sh = wb.sheets(sheet)
+    sh.autofit("columns")
+    wb.save()
+    wb.app.quit()
+    close_excel_instances(3)
 
 
 def filters_clean_filter(wb, sh) -> None:
@@ -85,16 +101,17 @@ def refresh_table(sh, table_name: str) -> None:
         print(e)
 
 
-def file_columns_autofit(report_path: str, sheet: str) -> None:
+def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1') -> None:
     """
-    Function to fit columns in Excel file automatically
-    :param report_path: path to Excel file
-    :param sheet: Sheet name of Excel file
+    Function to save dataframe to excel with autofit columns
+    :param df: pandas dataframe
+    :param file_path: path where file will be saved
+    :param sheet_name: name of Excel sheet
     :return: None
     """
-    wb = xw.Book(report_path)
-    sh = wb.sheets(sheet)
-    sh.autofit("columns")
-    wb.save()
-    wb.app.quit()
-    close_excel_instances(3)
+    with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+        for column in df:
+            column_length = max(df[column].astype(str).map(len).max(), len(column))
+            col_idx = df.columns.get_loc(column)
+            writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)

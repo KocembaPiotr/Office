@@ -112,6 +112,6 @@ def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1') ->
     with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name=sheet_name, index=False)
         for column in df:
-            column_length = max(df[column].astype(str).map(len).max(), len(column))
+            column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2
             col_idx = df.columns.get_loc(column)
             writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)

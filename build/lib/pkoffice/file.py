@@ -138,6 +138,16 @@ def file_base_name(path: str, separator: str = '\\') -> str:
     return tail
 
 
+def file_name_change(old_name: str, new_name: str) -> None:
+    """
+    Function to change name of the file
+    :param old_name: path to file with old name
+    :param new_name: path to file with new name
+    :return: None
+    """
+    os.rename(old_name, new_name)
+
+
 def file_content_read(path: str) -> list:
     """
     Function to read data from file

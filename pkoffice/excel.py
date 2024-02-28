@@ -101,7 +101,23 @@ def refresh_table(sh, table_name: str) -> None:
         print(e)
 
 
-def df_to_excel(df_list: list[pd.DataFrame], file_path: str, sheet_list: list = 'Sheet1') -> None:
+def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1') -> None:
+    """
+    Function to save dataframe to excel with autofit columns
+    :param df: pandas dataframe
+    :param file_path: path where file will be saved
+    :param sheet_name: name of Excel sheet
+    :return: None
+    """
+    with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
+        df.to_excel(writer, sheet_name=sheet_name, index=False)
+        for column in df:
+            column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2
+            col_idx = df.columns.get_loc(column)
+            writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)
+
+
+def df_to_excel_list(df_list: list[pd.DataFrame], file_path: str, sheet_list: list) -> None:
     """
     Function to save dataframe to excel with autofit columns
     :param df_list: list of pandas dataframes
@@ -111,6 +127,7 @@ def df_to_excel(df_list: list[pd.DataFrame], file_path: str, sheet_list: list = 
     """
     with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
         for df, sheet_name in zip(df_list, sheet_list):
+            print(df)
             df.to_excel(writer, sheet_name=sheet_name, index=False)
             for column in df:
                 column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2

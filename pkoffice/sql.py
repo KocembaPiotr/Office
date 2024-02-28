@@ -5,6 +5,7 @@ import numpy as np
 import sqlite3 as sqlite
 import threading
 import duckdb
+import pyodbc
 from typing import Literal
 from datetime import datetime
 from pkoffice import file
@@ -312,6 +313,38 @@ class DuckDb:
                 Select {select_query}
                 From st_read('{excel_path}', layer = '{excel_sheet}')
             """).df()
+
+
+class MsAccess:
+    """
+        Class to manage MS Access database connection.
+    """
+    def __init__(self, db_path: str):
+        self.conn_str = (
+            r'DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};'
+            f'DBQ={db_path};'
+        )
+
+    def execute_query(self, query: str) -> None:
+        """
+        Method to execute query in MS Access.
+        :param query: query to be executed
+        :return: None
+        """
+        with pyodbc.connect(self.conn_str).cursor() as cursor:
+            cursor.execute(query)
+
+    def download_data(self, query: str) -> pd.DataFrame:
+        """
+        Method to download data to pandas dataframe
+        :param query: query to be executed
+        :return: pd.Dataframe
+        """
+        with pyodbc.connect(self.conn_str).cursor() as cursor:
+            cursor.execute(query)
+            columns = [column[0] for column in cursor.description]
+            rows = cursor.fetchall()
+            return pd.DataFrame.from_records(rows, columns=columns)
 
 
 def columns_str_max_len(df: pd.DataFrame) -> None:

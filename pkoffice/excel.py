@@ -127,7 +127,6 @@ def df_to_excel_list(df_list: list[pd.DataFrame], file_path: str, sheet_list: li
     """
     with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
         for df, sheet_name in zip(df_list, sheet_list):
-            print(df)
             df.to_excel(writer, sheet_name=sheet_name, index=False)
             for column in df:
                 column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2

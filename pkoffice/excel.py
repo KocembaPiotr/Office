@@ -101,13 +101,20 @@ def refresh_table(sh, table_name: str) -> None:
         print(e)
 
 
-def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1') -> None:
+def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1',
+                cond_format: dict = None, header_format: dict = None) -> None:
     """
     Function to save dataframe to excel with autofit columns
     :param df: pandas dataframe
     :param file_path: path where file will be saved
     :param sheet_name: name of Excel sheet
+    :param cond_format: optional conditional formatting
+    :param header_format: optional header formatting
     :return: None
+    example of dictionaries:
+    cond_format={'range': 'F2:F10000', 'type': 'cell', 'criteria': '>', 'value': 4000,
+                 'format': {'bg_color': '#D9D9D9'}},
+    header_format={"bg_color": "#00D100", "border": 2, "bold": True}
     """
     with pd.ExcelWriter(file_path, engine='xlsxwriter') as writer:
         df.to_excel(writer, sheet_name=sheet_name, index=False)
@@ -115,6 +122,13 @@ def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1') ->
             column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2
             col_idx = df.columns.get_loc(column)
             writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)
+        if cond_format is not None:
+            cond_format_range = cond_format.pop('range')
+            cond_format['format'] = writer.book.add_format(cond_format['format'])
+            writer.sheets[sheet_name].conditional_format(cond_format_range, cond_format)
+        if header_format is not None:
+            for idx2, col in enumerate(df.columns):
+                writer.sheets[sheet_name].write(0, idx2, col, writer.book.add_format(header_format))
 
 
 def df_to_excel_list(df_list: list[pd.DataFrame], file_path: str, sheet_list: list) -> None:

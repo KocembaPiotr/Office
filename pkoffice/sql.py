@@ -390,6 +390,22 @@ def parse_to_date_from_str(df: pd.DataFrame,  column_names: list,
     return df
 
 
+def parse_to_float_from_time(df: pd.DataFrame, column_names: list) -> pd.DataFrame:
+    """
+    Function to convert data to float type
+    :param df: pandas dataframe with data to convert
+    :param column_names: column_names: list of columns which need to be converted
+    :return: pandas dataframe with corrected types
+    """
+    def parse_to_float_from_time_func(time):
+        total_seconds = time.hour * 3600 + time.minute * 60 + time.second
+        return total_seconds / (24 * 60 * 60)
+    for col in column_names:
+        df[col] = pd.to_datetime(df[col], format='%H:%M:%S').dt.time
+        df[col] = df[col].apply(parse_to_float_from_time_func)
+    return df
+
+
 def parse_to_float(df: pd.DataFrame, column_names: list) -> pd.DataFrame:
     """
     Function to convert data to float type

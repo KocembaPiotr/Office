@@ -45,7 +45,7 @@ def close_columns_autofit(report_path: str, sheet: str) -> None:
     close_excel_instances(3)
 
 
-def filters_clean_filter(wb, sh) -> None:
+def filters_clean_filter(wb: xw.Book, sh: xw.sheets) -> None:
     """
     Function to clean Excel filters but keep them as they were.
     :param wb: workbook variable
@@ -60,7 +60,7 @@ def filters_clean_filter(wb, sh) -> None:
         print(sys.exc_info())
 
 
-def filters_remove_filter(wb, sh) -> None:
+def filters_remove_filter(wb: xw.Book, sh: xw.sheets) -> None:
     """
     Function to remove all Excel filters on indicated sheet.
     :param wb: workbook variable
@@ -75,7 +75,7 @@ def filters_remove_filter(wb, sh) -> None:
         print(sys.exc_info())
 
 
-def refresh_table_pivot(sh, table_pivot_name: str) -> None:
+def refresh_table_pivot(sh: xw.sheets, table_pivot_name: str) -> None:
     """
     Function to refresh pivot table in Excel.
     :param table_pivot_name: name of pivot table which will be refreshed
@@ -88,7 +88,7 @@ def refresh_table_pivot(sh, table_pivot_name: str) -> None:
         print(e)
 
 
-def refresh_table(sh, table_name: str) -> None:
+def refresh_table(sh: xw.sheets, table_name: str) -> None:
     """
     Function to refresh table in Excel.
     :param table_name: name of pivot table which will be refreshed
@@ -99,6 +99,20 @@ def refresh_table(sh, table_name: str) -> None:
         sh.api.ListObjects(table_name).Refresh()
     except Exception as e:
         print(e)
+
+
+def create_table(df: pd.DataFrame, sh: xw.sheets, table_start_range: str, table_name: str) -> None:
+    """
+    Function to create Excel table base on python data
+    :param df: pandas dataframe
+    :param sh: Excel sheet
+    :param table_start_range: start of the range
+    :param table_name: table name
+    :return: None
+    """
+    sh[table_start_range].options(pd.DataFrame, header=1, index=False, expand='table').value = df
+    table_range = sh.range(table_start_range).expand('table')
+    sh.api.ListObjects.Add(1, sh.api.Range(table_range.address), None, 1).Name = table_name
 
 
 def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1',

@@ -298,21 +298,14 @@ class DuckDb:
     def __init__(self, db_path: str = ''):
         self.db_path = db_path
 
-    def download_excel_data(self, excel_path: str, excel_sheet: str, select_query: str = '*') -> pd.DataFrame:
+    def download_data(self, sql_query: str) -> pd.DataFrame:
         """
-        Method to download Excel data using DuckDb
-        :param excel_path: path to Excel file
-        :param excel_sheet: sheet name of Excel file
-        :param select_query: columns to extract
+        Method to download data using DuckDb
+        :param sql_query: sql query to download data
         :return: pandas dataframe
         """
         with duckdb.connect(self.db_path) as conn:
-            conn.install_extension('spatial')
-            conn.load_extension('spatial')
-            return conn.sql(f"""
-                Select {select_query}
-                From st_read('{excel_path}', layer = '{excel_sheet}')
-            """).df()
+            return conn.sql(sql_query).df()
 
 
 class MsAccess:

@@ -169,6 +169,20 @@ def file_content_write(path: str, content_new: list) -> None:
         f.writelines(content_new)
 
 
+def file_content_remove_lines(file_path, cond_in: str):
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+        with open(file_path, 'w') as file:
+            for line in lines:
+                if cond_in not in line:
+                    file.write(line)
+    except FileNotFoundError:
+        print(f"File '{file_path}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
 def folder_delete(dir_path: str) -> None:
     """
     Function to delete whole folder with all items inside

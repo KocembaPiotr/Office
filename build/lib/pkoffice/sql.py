@@ -82,7 +82,7 @@ class SqlDB:
         self.df = df
         self.table = table_name
         if log_table is not None:
-            self.upload_log(log_table, self.upload_parameters())
+            self.upload_log(log_table, self.upload_parameters(df, table_name))
             self.df = None
 
     def upload_data_mass(self, df: pd.DataFrame, table_name: str, chunksize: int = 300,
@@ -140,7 +140,7 @@ class SqlDB:
         self.df = df
         self.table = table_name
         if log_table is not None:
-            self.upload_log(log_table, self.upload_parameters(flag_delete_data))
+            self.upload_log(log_table, self.upload_parameters(df, table_name, flag_delete_data))
             self.df = None
 
     def upload_bulk(self, df: pd.DataFrame, table_name: str, server_folder: str,
@@ -178,7 +178,7 @@ class SqlDB:
         self.df = df
         self.table = table_name
         if log_table is not None:
-            self.upload_log(log_table, self.upload_parameters(flag_delete_data))
+            self.upload_log(log_table, self.upload_parameters(df, table_name, flag_delete_data))
             self.df = None
 
     def upload_bulk_thread(self, df: pd.DataFrame, table_name: str, server_folder: str,
@@ -198,15 +198,15 @@ class SqlDB:
         for x in self.threads:
             x.join()
 
-    def upload_parameters(self, flag_delete_data: bool = True) -> None:
+    def upload_parameters(self, df: pd.DataFrame, table: str, flag_delete_data: bool = True) -> None:
         """
         Method to return main process parameters.
         :return: [process date, process time, process duration,
                   dataframe records]
         """
-        if self.df is not None:
-            df_db_max = self.download_data(f"Select count(*) from dbo.[{self.table}]").values[0][0]
-            df_max = self.df.count().max()
+        if df is not None:
+            df_db_max = self.download_data(f"Select count(*) from dbo.[{table}]").values[0][0]
+            df_max = df.count().max()
             df_check = 'Commit'
             if not self.flag_commit:
                 df_check = 'RollBack'
@@ -214,7 +214,7 @@ class SqlDB:
                 df_check = 'Fault'
             return [self.process_time_end.strftime("%Y-%m-%d"),
                     self.process_time_end.strftime("%H:%M:%S"),
-                    self.table,
+                    table,
                     (self.process_time_end - self.process_time_beg).seconds,
                     (self.process_time_end - self.process_time_beg).seconds,
                     df_max, df_check]

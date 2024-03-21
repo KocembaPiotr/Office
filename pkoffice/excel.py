@@ -4,6 +4,7 @@ import time
 import webbrowser
 import pandas as pd
 import xlwings as xw
+import win32com.client
 from win32com.universal import com_error
 
 
@@ -99,6 +100,21 @@ def refresh_table(sh: xw.sheets, table_name: str) -> None:
         sh.api.ListObjects(table_name).Refresh()
     except Exception as e:
         print(e)
+
+
+def refresh_all_tables_without_open(file: str) -> None:
+    """
+
+    :param file: path to Excel file which need to be refreshed
+    :return: None
+    """
+    excel = win32com.client.Dispatch("Excel.Application")
+    excel.Visible = False
+    wb = excel.Workbooks.Open(file)
+    wb.RefreshAll()
+    wb.Save()
+    wb.Close()
+    excel.Quit()
 
 
 def create_table(df: pd.DataFrame, sh: xw.sheets, table_start_range: str, table_name: str) -> None:

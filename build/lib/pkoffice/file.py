@@ -169,7 +169,13 @@ def file_content_write(path: str, content_new: list) -> None:
         f.writelines(content_new)
 
 
-def file_content_remove_lines(file_path, cond_in: str):
+def file_content_remove_lines(file_path: str, cond_in: str) -> None:
+    """
+    Function to remove proper lines in file
+    :param file_path: path to file
+    :param cond_in: parameter which is in line to be removed
+    :return: None
+    """
     try:
         with open(file_path, 'r') as file:
             lines = file.readlines()
@@ -177,6 +183,26 @@ def file_content_remove_lines(file_path, cond_in: str):
             for line in lines:
                 if cond_in not in line:
                     file.write(line)
+    except FileNotFoundError:
+        print(f"File '{file_path}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+def file_content_replace(file_path: str, old_char: str, new_char: str) -> None:
+    """
+    Function to replace proper char in file
+    :param file_path: path to file
+    :param old_char: old char to be replaced
+    :param new_char: new char
+    :return: None
+    """
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.read()
+        modified_lines = lines.replace(old_char, new_char)
+        with open(file_path, 'w') as file:
+            file.write(modified_lines)
     except FileNotFoundError:
         print(f"File '{file_path}' not found.")
     except Exception as e:

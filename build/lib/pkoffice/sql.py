@@ -85,6 +85,22 @@ class SqlDB:
             self.upload_log(log_table, self.upload_parameters(df, table_name))
             self.df = None
 
+    def upload_data_thread(self, df: pd.DataFrame, table_name: str, chunksize: int,
+                           if_exists: Literal["new", "replace", "append"] = 'replace',
+                           log_table: str = None) -> None:
+        t = threading.Thread(target=self.upload_data, args=[df, table_name, chunksize,
+                                                            if_exists, log_table])
+        self.threads.append(t)
+        t.start()
+
+    def upload_data_thread_wait(self) -> None:
+        """
+        Function to wait for all threads to finish
+        :return: None
+        """
+        for x in self.threads:
+            x.join()
+
     def upload_data_mass(self, df: pd.DataFrame, table_name: str, chunksize: int = 300,
                          flag_delete_data: bool = True, log_table: str = None) -> None:
         """

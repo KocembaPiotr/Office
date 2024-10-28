@@ -126,6 +126,9 @@ def create_table(df: pd.DataFrame, sh: xw.sheets, table_start_range: str, table_
     :param table_name: table name
     :return: None
     """
+    for table in sh.api.ListObjects:
+        if table.Name == table_name:
+            table.Delete()
     sh[table_start_range].options(pd.DataFrame, header=1, index=False, expand='table').value = df
     table_range = sh.range(table_start_range).expand('table')
     sh.api.ListObjects.Add(1, sh.api.Range(table_range.address), None, 1).Name = table_name

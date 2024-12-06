@@ -172,7 +172,7 @@ def create_table_win32(df: pd.DataFrame, excel_path: str, excel_sheet: str, tabl
             table.Delete()
     sheet_range = f"{table_start_range}:{chr(64 + df.shape[1]) + str(df.shape[0]+1)}"
     sheet.Range(sheet_range).Value = [df.columns.values.tolist(), *df.values.tolist()]
-    sheet.ListObjects.Add(1, sheet_range).Name = table_name
+    sheet.ListObjects.Add(1, sheet.Range(sheet_range), None, 1).Name = table_name
 
 
 def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1',

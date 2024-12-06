@@ -104,7 +104,7 @@ def refresh_table(sh: xw.sheets, table_name: str) -> None:
 
 def refresh_all_tables_without_open(file: str) -> None:
     """
-
+    Function to refresh table in Excel without it open.
     :param file: path to Excel file which need to be refreshed
     :return: None
     """
@@ -115,6 +115,26 @@ def refresh_all_tables_without_open(file: str) -> None:
     wb.Save()
     wb.Close()
     excel.Quit()
+
+
+def refresh_macro_without_open(file: str, macro: str) -> None:
+    """
+    Function to refresh macro in Excel without it open.
+    :param file: path to Excel file which need to be refreshed
+    :param macro: macro name which is located in Excel file
+    :return: None
+    """
+    excel = win32com.client.Dispatch("Excel.Application")
+    try:
+        excel.Visible = False
+        excel.DisplayAlerts = False
+        workbook = excel.Workbooks.Open(file)
+        excel.Application.Run(macro)
+        workbook.Close(SaveChanges=True)
+    except Exception as e:
+        print(e)
+    finally:
+        excel.Quit()
 
 
 def create_table(df: pd.DataFrame, sh: xw.sheets, table_start_range: str, table_name: str) -> None:
@@ -132,6 +152,27 @@ def create_table(df: pd.DataFrame, sh: xw.sheets, table_start_range: str, table_
     sh[table_start_range].options(pd.DataFrame, header=1, index=False, expand='table').value = df
     table_range = sh.range(table_start_range).expand('table')
     sh.api.ListObjects.Add(1, sh.api.Range(table_range.address), None, 1).Name = table_name
+
+
+def create_table_win32(df: pd.DataFrame, excel_path: str, excel_sheet: str, table_start_range: str, table_name: str) -> None:
+    """
+    Function to create Excel table base on python data and win32com
+    :param df: pandas dataframe
+    :param excel_path: Excel workbook
+    :param excel_sheet: Excel sheet
+    :param table_start_range: start of the range
+    :param table_name: table name
+    :return: None
+    """
+    excel = win32com.client.Dispatch("Excel.Application")
+    workbook = excel.Workbooks.Open(excel_path)
+    sheet = workbook.Sheets(excel_sheet)
+    for table in sheet.ListObjects:
+        if table.Name == table_name:
+            table.Delete()
+    sheet_range = f"{table_start_range}:{chr(64 + df.shape[1]) + str(df.shape[0]+1)}"
+    sheet.Range(sheet_range).Value = [df.columns.values.tolist(), *df.values.tolist()]
+    sheet.ListObjects.Add(1, sheet_range).Name = table_name
 
 
 def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1',
@@ -179,3 +220,22 @@ def df_to_excel_list(df_list: list[pd.DataFrame], file_path: str, sheet_list: li
                 column_length = max(df[column].astype(str).map(len).max(), len(column)) * 1.2
                 col_idx = df.columns.get_loc(column)
                 writer.sheets[sheet_name].set_column(col_idx, col_idx, column_length)
+
+
+def copy_column_win32(excel_path: str, excel_sheet: str, excel_column: str) -> pd.DataFrame:
+    """
+    Function to copy data from indicated column to pandas dataframe
+    :param excel_path: Excel workbook
+    :param excel_sheet: Excel sheet
+    :param excel_column: Indicated Excel column to copy data
+    :return: pandas dataframe
+    """
+    df = pd.DataFrame()
+    excel = win32com.client.Dispatch("Excel.Application")
+    workbook = excel.Workbooks.Open(excel_path)
+    try:
+        sheet = workbook.Sheets(excel_sheet)
+        column_data = sheet.Range(f"{excel_column}:{excel_column}0000").Value
+        df = pd.DataFrame(column_data[1:], columns=[column_data[0][0]])
+    finally:
+        return df

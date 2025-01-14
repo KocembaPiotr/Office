@@ -165,7 +165,7 @@ def create_table_win32(df: pd.DataFrame, excel_path: str, excel_sheet: str, tabl
     :return: None
     """
     excel = win32com.client.Dispatch("Excel.Application")
-    workbook = excel.Workbooks.Open(excel_path)
+    workbook = excel.Workbooks(excel_path)
     sheet = workbook.Sheets(excel_sheet)
     for table in sheet.ListObjects:
         if table.Name == table_name:
@@ -232,7 +232,7 @@ def copy_column_win32(excel_path: str, excel_sheet: str, excel_column: str) -> p
     """
     df = pd.DataFrame()
     excel = win32com.client.Dispatch("Excel.Application")
-    workbook = excel.Workbooks.Open(excel_path)
+    workbook = excel.Workbooks(excel_path)
     try:
         sheet = workbook.Sheets(excel_sheet)
         column_data = sheet.Range(f"{excel_column}:{excel_column}0000").Value

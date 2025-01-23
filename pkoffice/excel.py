@@ -113,7 +113,7 @@ def refresh_all_tables_without_open(file: str) -> None:
     wb = excel.Workbooks.Open(file)
     wb.RefreshAll()
     wb.Save()
-    wb.Close()
+    wb.Close(SaveChanges=False)
     excel.Quit()
 
 

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.1.3'
+VERSION = '0.1.4'
 DESCRIPTION = 'Python package to manage office tools.'
 LONG_DESCRIPTION = '''Python package which will simplify usage of main office tools.
                    '''

@@ -40,6 +40,17 @@ def files_delete_directory(directory_path: str) -> int:
         return 0
 
 
+def files_delete(file_paths: list) -> None:
+    """
+    Function to delete temporary files after mail was sent.
+    :param file_paths: list of paths of attachments ['path1','path2']
+    :return:
+    """
+    for file in file_paths:
+        if os.path.isfile(file):
+            os.remove(file)
+
+
 def files_download_wait(directory: str, file_name: str, timeout_seconds: int,
                         nfiles: int = None) -> None:
     """

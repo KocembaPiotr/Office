@@ -1,6 +1,5 @@
 import win32com.client as win32
 import time
-import os
 
 ATTACHMENTS_TMP_PATH = r'C:\Temp\\'
 
@@ -30,14 +29,3 @@ def send_mail(address_to: str, address_cc: str, mail_subject: str, mail_body: st
             mail.Attachments.Add(attachment)
     time.sleep(3)
     mail.Send()
-
-
-def delete_files(file_paths: list) -> None:
-    """
-    Function to delete temporary files after mail was sent.
-    :param file_paths: list of paths of attachments ['path1','path2']
-    :return:
-    """
-    for file in file_paths:
-        if os.path.isfile(file):
-            os.remove(file)

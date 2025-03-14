@@ -170,9 +170,14 @@ def create_table_win32(df: pd.DataFrame, excel_path: str, excel_sheet: str, tabl
     for table in sheet.ListObjects:
         if table.Name == table_name:
             table.Delete()
-    sheet_range = f"{table_start_range}:{chr(64 + df.shape[1]) + str(df.shape[0]+1)}"
+    letter_first = df.shape[1] // 26
+    letter_second = df.shape[1] % 26
+    letter_set = chr(64 + letter_first) if letter_first > 0 else ''
+    sheet_range = f"{table_start_range}:{letter_set + chr(64 + letter_second) + str(df.shape[0]+1)}"
+    df = df.astype(object).where(pd.notna(df), None)
     sheet.Range(sheet_range).Value = [df.columns.values.tolist(), *df.values.tolist()]
     sheet.ListObjects.Add(1, sheet.Range(sheet_range), None, 1).Name = table_name
+
 
 
 def df_to_excel(df: pd.DataFrame, file_path: str, sheet_name: str = 'Sheet1',
